@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+httpx
+gitpython
+anthropic
+aiosqlite
+python-dotenv
+pydantic>=2.0
