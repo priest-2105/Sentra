@@ -5,72 +5,61 @@ interface RoadmapItemProps {
 }
 
 const EFFORT_CONFIG = {
-  low: { color: "#16A34A", label: "Low effort" },
-  medium: { color: "#D97706", label: "Medium effort" },
-  high: { color: "#DC2626", label: "High effort" },
+  low: { color: "#059669", label: "Low" },
+  medium: { color: "#D97706", label: "Medium" },
+  high: { color: "#DC2626", label: "High" },
 };
 
 export default function RoadmapItem({ priority, action, effort }: RoadmapItemProps) {
-  const effortCfg = EFFORT_CONFIG[effort] || EFFORT_CONFIG.medium;
+  const effortCfg = EFFORT_CONFIG[effort] ?? EFFORT_CONFIG.medium;
 
   return (
     <div
       style={{
-        display: "flex",
-        gap: "14px",
-        alignItems: "flex-start",
-        padding: "12px 0",
-        borderBottom: "1px solid #1E293B",
+        display: "grid",
+        gridTemplateColumns: "32px 1fr auto",
+        gap: "16px",
+        alignItems: "start",
+        padding: "14px 0",
+        borderBottom: "1px solid #F3F4F6",
       }}
     >
-      {/* Priority badge */}
-      <div
-        style={{
-          width: "24px",
-          height: "24px",
-          borderRadius: "4px",
-          backgroundColor: "#2563EB",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
-        }}
-      >
-        <span
-          style={{
-            fontFamily: "var(--font-jetbrains), 'JetBrains Mono', monospace",
-            fontSize: "11px",
-            fontWeight: 700,
-            color: "#fff",
-          }}
-        >
-          {priority}
-        </span>
-      </div>
-
-      {/* Action */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p
-          style={{
-            fontFamily: "var(--font-inter), Inter, sans-serif",
-            fontSize: "13px",
-            color: "#E2E8F0",
-            margin: 0,
-            lineHeight: 1.5,
-          }}
-        >
-          {action}
-        </p>
-      </div>
-
-      {/* Effort badge */}
+      {/* Priority number */}
       <span
         style={{
-          fontFamily: "var(--font-jetbrains), 'JetBrains Mono', monospace",
+          fontFamily: "var(--font-mono), 'JetBrains Mono', monospace",
+          fontSize: "11px",
+          fontWeight: 700,
+          color: "#0274B6",
+          paddingTop: "1px",
+        }}
+      >
+        {String(priority).padStart(2, "0")}
+      </span>
+
+      {/* Action */}
+      <p
+        style={{
+          fontFamily: "var(--font-sans), 'IBM Plex Sans', sans-serif",
+          fontSize: "13px",
+          fontWeight: 400,
+          color: "#1F2933",
+          lineHeight: 1.55,
+        }}
+      >
+        {action}
+      </p>
+
+      {/* Effort */}
+      <span
+        style={{
+          fontFamily: "var(--font-mono), 'JetBrains Mono', monospace",
           fontSize: "10px",
+          fontWeight: 500,
           color: effortCfg.color,
           whiteSpace: "nowrap",
-          flexShrink: 0,
+          paddingTop: "2px",
+          letterSpacing: "0.04em",
         }}
       >
         {effortCfg.label}

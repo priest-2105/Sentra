@@ -2,12 +2,24 @@
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  background-color: #0F172A;
-  color: #F1F5F9;
-  font-family: Inter, sans-serif;
+  background-color: #F8FAFC;
+  color: #1F2933;
+  font-family: var(--font-sans), 'IBM Plex Sans', sans-serif;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1); }
 }

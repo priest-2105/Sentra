@@ -12,10 +12,34 @@ import type { ScanResult } from "@/lib/api";
 const ENGINE_URL = process.env.NEXT_PUBLIC_ENGINE_URL || "http://localhost:8000";
 
 const RECOMMENDATION_CONFIG = {
-  Ready: { color: "#16A34A", bg: "rgba(22, 163, 74, 0.1)", border: "rgba(22, 163, 74, 0.2)" },
-  "Needs Work": { color: "#D97706", bg: "rgba(217, 119, 6, 0.1)", border: "rgba(217, 119, 6, 0.2)" },
-  "Not Ready": { color: "#DC2626", bg: "rgba(220, 38, 38, 0.1)", border: "rgba(220, 38, 38, 0.2)" },
+  Ready: { color: "#059669", bg: "#F0FDF4", border: "#A7F3D0", label: "PRODUCTION READY" },
+  "Needs Work": { color: "#D97706", bg: "#FFFBEB", border: "#FDE68A", label: "NEEDS REMEDIATION" },
+  "Not Ready": { color: "#DC2626", bg: "#FEF2F2", border: "#FECACA", label: "NOT PRODUCTION READY" },
 };
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p
+      style={{
+        fontFamily: "var(--font-sans), 'IBM Plex Sans', sans-serif",
+        fontSize: "10px",
+        fontWeight: 600,
+        color: "#9CA3AF",
+        letterSpacing: "0.12em",
+        textTransform: "uppercase",
+        marginBottom: "16px",
+      }}
+    >
+      {children}
+    </p>
+  );
+}
+
+function Divider() {
+  return (
+    <div style={{ borderTop: "1px solid #E5E7EB", margin: "40px 0" }} />
+  );
+}
 
 export default function ScanPage() {
   const params = useParams();
@@ -26,9 +50,7 @@ export default function ScanPage() {
 
   const fetchScan = useCallback(async () => {
     try {
-      const res = await fetch(`${ENGINE_URL}/scan/${scanId}`, {
-        cache: "no-store",
-      });
+      const res = await fetch(`${ENGINE_URL}/scan/${scanId}`, { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data: ScanResult = await res.json();
       setResult(data);
@@ -41,32 +63,31 @@ export default function ScanPage() {
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
-
     async function poll() {
       const status = await fetchScan();
       if (status === "pending" || status === "running") {
         timeoutId = setTimeout(poll, 2000);
       }
     }
-
     poll();
     return () => clearTimeout(timeoutId);
   }, [fetchScan]);
 
+  // Error state
   if (fetchError) {
     return (
-      <div style={{ minHeight: "100vh", backgroundColor: "#0F172A" }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "#F8FAFC" }}>
         <Header />
-        <div style={{ maxWidth: "800px", margin: "0 auto", padding: "48px 24px" }}>
+        <div style={{ maxWidth: "800px", margin: "0 auto", padding: "64px 32px" }}>
           <div
             style={{
-              backgroundColor: "rgba(220, 38, 38, 0.08)",
-              border: "1px solid rgba(220, 38, 38, 0.2)",
-              borderRadius: "6px",
-              padding: "20px",
+              backgroundColor: "#FEF2F2",
+              border: "1px solid #FECACA",
+              borderRadius: "3px",
+              padding: "20px 24px",
               color: "#DC2626",
-              fontFamily: "var(--font-inter), Inter, sans-serif",
-              fontSize: "14px",
+              fontFamily: "var(--font-sans), 'IBM Plex Sans', sans-serif",
+              fontSize: "13px",
             }}
           >
             Failed to load scan: {fetchError}
@@ -76,94 +97,104 @@ export default function ScanPage() {
     );
   }
 
+  // Loading / pending state
   if (!result || result.status === "pending" || result.status === "running") {
     return (
-      <div style={{ minHeight: "100vh", backgroundColor: "#0F172A" }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "#F8FAFC" }}>
         <Header />
         <div
           style={{
-            maxWidth: "800px",
+            maxWidth: "600px",
             margin: "0 auto",
-            padding: "80px 24px",
+            padding: "120px 32px",
             textAlign: "center",
           }}
         >
+          {/* Dot pulse animation */}
           <div
-            style={{
-              width: "40px",
-              height: "40px",
-              border: "3px solid #334155",
-              borderTopColor: "#2563EB",
-              borderRadius: "50%",
-              margin: "0 auto 24px",
-              animation: "spin 0.8s linear infinite",
-            }}
-          />
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            style={{ display: "flex", gap: "8px", justifyContent: "center", marginBottom: "32px" }}
+          >
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                style={{
+                  width: "7px",
+                  height: "7px",
+                  borderRadius: "50%",
+                  backgroundColor: "#0274B6",
+                  animation: `pulse-dot 1.4s ease-in-out ${i * 0.16}s infinite`,
+                }}
+              />
+            ))}
+          </div>
+
           <h2
             style={{
-              fontFamily: "var(--font-ibm-plex), 'IBM Plex Sans', sans-serif",
+              fontFamily: "var(--font-serif), 'IBM Plex Serif', serif",
               fontSize: "20px",
-              color: "#F1F5F9",
               fontWeight: 600,
-              marginBottom: "8px",
+              color: "#0B1F2A",
+              marginBottom: "10px",
             }}
           >
-            {result?.status === "running" ? "Scanning repository…" : "Preparing scan…"}
+            {result?.status === "running" ? "Analysis in progress" : "Preparing analysis"}
           </h2>
           <p
             style={{
-              fontFamily: "var(--font-inter), Inter, sans-serif",
-              fontSize: "13px",
+              fontFamily: "var(--font-mono), 'JetBrains Mono', monospace",
+              fontSize: "12px",
               color: "#6B7280",
+              marginBottom: "8px",
             }}
           >
-            {result?.repo_url || `Scan ID: ${scanId}`}
+            {result?.repo_url || scanId}
           </p>
           <p
             style={{
-              fontFamily: "var(--font-inter), Inter, sans-serif",
+              fontFamily: "var(--font-sans), 'IBM Plex Sans', sans-serif",
               fontSize: "12px",
-              color: "#4B5563",
-              marginTop: "8px",
+              fontWeight: 300,
+              color: "#9CA3AF",
             }}
           >
-            This typically takes 15–30 seconds. Cloning repo, running analysis, generating AI insights…
+            Cloning repository, running static analysis, generating AI insights — typically 15–30 seconds.
           </p>
         </div>
       </div>
     );
   }
 
+  // Scan error
   if (result.status === "error") {
     return (
-      <div style={{ minHeight: "100vh", backgroundColor: "#0F172A" }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "#F8FAFC" }}>
         <Header />
-        <div style={{ maxWidth: "800px", margin: "0 auto", padding: "48px 24px" }}>
+        <div style={{ maxWidth: "800px", margin: "0 auto", padding: "64px 32px" }}>
           <div
             style={{
-              backgroundColor: "rgba(220, 38, 38, 0.08)",
-              border: "1px solid rgba(220, 38, 38, 0.2)",
-              borderRadius: "6px",
-              padding: "20px",
+              backgroundColor: "#FEF2F2",
+              border: "1px solid #FECACA",
+              borderRadius: "3px",
+              padding: "24px",
             }}
           >
             <h2
               style={{
-                fontFamily: "var(--font-ibm-plex), 'IBM Plex Sans', sans-serif",
-                fontSize: "18px",
-                color: "#DC2626",
+                fontFamily: "var(--font-serif), 'IBM Plex Serif', serif",
+                fontSize: "16px",
                 fontWeight: 600,
+                color: "#DC2626",
                 marginBottom: "8px",
               }}
             >
-              Scan failed
+              Analysis failed
             </h2>
             <p
               style={{
-                fontFamily: "var(--font-inter), Inter, sans-serif",
+                fontFamily: "var(--font-sans), 'IBM Plex Sans', sans-serif",
                 fontSize: "13px",
-                color: "#94A3B8",
+                fontWeight: 300,
+                color: "#6B7280",
               }}
             >
               {result.error_msg || "An unexpected error occurred during the scan."}
@@ -180,82 +211,92 @@ export default function ScanPage() {
   const recCfg = rec ? RECOMMENDATION_CONFIG[rec] : RECOMMENDATION_CONFIG["Needs Work"];
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#0F172A" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F8FAFC" }}>
       <Header />
-      <main style={{ maxWidth: "1000px", margin: "0 auto", padding: "40px 24px 80px" }}>
 
-        {/* Top bar */}
-        <div style={{ marginBottom: "32px" }}>
+      <main style={{ maxWidth: "960px", margin: "0 auto", padding: "56px 32px 96px" }}>
+
+        {/* Report header */}
+        <div style={{ marginBottom: "40px" }}>
           <p
             style={{
-              fontFamily: "var(--font-jetbrains), 'JetBrains Mono', monospace",
-              fontSize: "11px",
-              color: "#6B7280",
-              marginBottom: "4px",
+              fontFamily: "var(--font-sans), 'IBM Plex Sans', sans-serif",
+              fontSize: "10px",
+              fontWeight: 600,
+              color: "#0274B6",
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              marginBottom: "10px",
             }}
           >
-            {result.repo_url}
+            Audit Report
           </p>
           <h1
             style={{
-              fontFamily: "var(--font-ibm-plex), 'IBM Plex Sans', sans-serif",
-              fontSize: "22px",
+              fontFamily: "var(--font-serif), 'IBM Plex Serif', serif",
+              fontSize: "26px",
               fontWeight: 700,
-              color: "#F1F5F9",
+              color: "#0B1F2A",
               letterSpacing: "-0.02em",
+              marginBottom: "8px",
             }}
           >
             Production Readiness Report
           </h1>
+          <p
+            style={{
+              fontFamily: "var(--font-mono), 'JetBrains Mono', monospace",
+              fontSize: "11px",
+              color: "#6B7280",
+            }}
+          >
+            {result.repo_url}
+          </p>
         </div>
 
-        {/* Score + dimensions */}
+        <Divider />
+
+        {/* Section: Overview */}
+        <SectionLabel>Overview</SectionLabel>
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "auto 1fr",
-            gap: "32px",
+            gap: "48px",
             alignItems: "center",
-            backgroundColor: "#1E293B",
-            border: "1px solid #334155",
-            borderRadius: "6px",
-            padding: "28px",
-            marginBottom: "24px",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid #E5E7EB",
+            borderRadius: "4px",
+            padding: "32px",
           }}
         >
-          {/* Total score ring */}
+          {/* Score ring + verdict */}
           <div style={{ textAlign: "center" }}>
             <ScoreRing score={total_score ?? 0} />
             {rec && (
               <div
                 style={{
-                  marginTop: "12px",
+                  marginTop: "14px",
                   display: "inline-block",
                   padding: "4px 10px",
                   backgroundColor: recCfg.bg,
                   border: `1px solid ${recCfg.border}`,
-                  borderRadius: "4px",
-                  fontFamily: "var(--font-jetbrains), 'JetBrains Mono', monospace",
-                  fontSize: "11px",
+                  borderRadius: "2px",
+                  fontFamily: "var(--font-mono), 'JetBrains Mono', monospace",
+                  fontSize: "9px",
                   fontWeight: 700,
                   color: recCfg.color,
-                  letterSpacing: "0.04em",
+                  letterSpacing: "0.1em",
                 }}
               >
-                {rec.toUpperCase()}
+                {recCfg.label}
               </div>
             )}
           </div>
 
-          {/* Dimension cards */}
+          {/* Dimension scores */}
           {scores && (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, 1fr)",
-                gap: "12px",
-              }}
-            >
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
               <DimensionCard label="Security" score={scores.security} maxScore={50} />
               <DimensionCard label="DevOps Maturity" score={scores.devops} maxScore={30} />
               <DimensionCard label="Observability" score={scores.observability} maxScore={15} />
@@ -264,29 +305,16 @@ export default function ScanPage() {
           )}
         </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "24px",
-            marginBottom: "24px",
-          }}
-        >
+        <Divider />
+
+        {/* Section: Findings — two column */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "48px" }}>
+
           {/* Risk flags */}
           {flags && flags.length > 0 && (
             <div>
-              <h2
-                style={{
-                  fontFamily: "var(--font-ibm-plex), 'IBM Plex Sans', sans-serif",
-                  fontSize: "15px",
-                  fontWeight: 600,
-                  color: "#F1F5F9",
-                  marginBottom: "12px",
-                }}
-              >
-                Risk Flags
-              </h2>
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <SectionLabel>Risk Flags</SectionLabel>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 {flags.map((flag, i) => (
                   <RiskFlag
                     key={i}
@@ -299,38 +327,28 @@ export default function ScanPage() {
             </div>
           )}
 
-          {/* AI Explanation */}
+          {/* AI Analysis */}
           {explanation && (
             <div>
-              <h2
-                style={{
-                  fontFamily: "var(--font-ibm-plex), 'IBM Plex Sans', sans-serif",
-                  fontSize: "15px",
-                  fontWeight: 600,
-                  color: "#F1F5F9",
-                  marginBottom: "12px",
-                }}
-              >
-                AI Analysis
-              </h2>
+              <SectionLabel>AI Analysis</SectionLabel>
 
               {/* Summary */}
               <div
                 style={{
-                  backgroundColor: "#1E293B",
-                  border: "1px solid #334155",
-                  borderRadius: "6px",
-                  padding: "16px",
-                  marginBottom: "16px",
+                  backgroundColor: "#FFFFFF",
+                  border: "1px solid #E5E7EB",
+                  borderRadius: "3px",
+                  padding: "18px",
+                  marginBottom: "12px",
                 }}
               >
                 <p
                   style={{
-                    fontFamily: "var(--font-inter), Inter, sans-serif",
+                    fontFamily: "var(--font-sans), 'IBM Plex Sans', sans-serif",
                     fontSize: "13px",
-                    color: "#CBD5E1",
-                    lineHeight: 1.6,
-                    margin: 0,
+                    fontWeight: 300,
+                    color: "#1F2933",
+                    lineHeight: 1.7,
                   }}
                 >
                   {explanation.summary}
@@ -341,57 +359,61 @@ export default function ScanPage() {
               {explanation.risks.length > 0 && (
                 <div
                   style={{
-                    backgroundColor: "#1E293B",
-                    border: "1px solid #334155",
-                    borderRadius: "6px",
-                    padding: "16px",
+                    backgroundColor: "#FFFFFF",
+                    border: "1px solid #E5E7EB",
+                    borderRadius: "3px",
+                    padding: "18px",
                   }}
                 >
-                  <h3
+                  <p
                     style={{
-                      fontFamily: "var(--font-inter), Inter, sans-serif",
-                      fontSize: "12px",
+                      fontFamily: "var(--font-sans), 'IBM Plex Sans', sans-serif",
+                      fontSize: "10px",
                       fontWeight: 600,
-                      color: "#6B7280",
+                      color: "#9CA3AF",
+                      letterSpacing: "0.1em",
                       textTransform: "uppercase",
-                      letterSpacing: "0.06em",
-                      marginBottom: "12px",
+                      marginBottom: "14px",
                     }}
                   >
                     Top Risks
-                  </h3>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                     {explanation.risks.map((risk, i) => (
-                      <div key={i}>
+                      <div key={i} style={{ borderLeft: "2px solid #E5E7EB", paddingLeft: "12px" }}>
                         <p
                           style={{
-                            fontFamily: "var(--font-inter), Inter, sans-serif",
+                            fontFamily: "var(--font-sans), 'IBM Plex Sans', sans-serif",
                             fontSize: "12px",
                             fontWeight: 600,
-                            color: "#E2E8F0",
-                            marginBottom: "2px",
+                            color: "#0B1F2A",
+                            marginBottom: "4px",
                           }}
                         >
                           {risk.title}
                         </p>
                         <p
                           style={{
-                            fontFamily: "var(--font-inter), Inter, sans-serif",
+                            fontFamily: "var(--font-sans), 'IBM Plex Sans', sans-serif",
                             fontSize: "11px",
-                            color: "#94A3B8",
+                            fontWeight: 300,
+                            color: "#6B7280",
                             marginBottom: "2px",
                           }}
                         >
-                          <strong style={{ color: "#DC2626" }}>Impact:</strong> {risk.impact}
+                          <strong style={{ color: "#DC2626", fontWeight: 500 }}>Impact — </strong>
+                          {risk.impact}
                         </p>
                         <p
                           style={{
-                            fontFamily: "var(--font-inter), Inter, sans-serif",
+                            fontFamily: "var(--font-sans), 'IBM Plex Sans', sans-serif",
                             fontSize: "11px",
-                            color: "#94A3B8",
+                            fontWeight: 300,
+                            color: "#6B7280",
                           }}
                         >
-                          <strong style={{ color: "#16A34A" }}>Fix:</strong> {risk.fix}
+                          <strong style={{ color: "#059669", fontWeight: 500 }}>Fix — </strong>
+                          {risk.fix}
                         </p>
                       </div>
                     ))}
@@ -402,38 +424,19 @@ export default function ScanPage() {
           )}
         </div>
 
-        {/* Remediation Roadmap */}
+        {/* Section: Remediation Roadmap */}
         {explanation && explanation.roadmap.length > 0 && (
-          <div
-            style={{
-              backgroundColor: "#1E293B",
-              border: "1px solid #334155",
-              borderRadius: "6px",
-              padding: "24px",
-            }}
-          >
-            <h2
+          <>
+            <Divider />
+            <SectionLabel>Remediation Roadmap</SectionLabel>
+            <div
               style={{
-                fontFamily: "var(--font-ibm-plex), 'IBM Plex Sans', sans-serif",
-                fontSize: "15px",
-                fontWeight: 600,
-                color: "#F1F5F9",
-                marginBottom: "4px",
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E5E7EB",
+                borderRadius: "4px",
+                padding: "8px 24px",
               }}
             >
-              Remediation Roadmap
-            </h2>
-            <p
-              style={{
-                fontFamily: "var(--font-inter), Inter, sans-serif",
-                fontSize: "12px",
-                color: "#6B7280",
-                marginBottom: "16px",
-              }}
-            >
-              Prioritized action plan generated by AI
-            </p>
-            <div>
               {explanation.roadmap.map((item, i) => (
                 <RoadmapItem
                   key={i}
@@ -443,8 +446,9 @@ export default function ScanPage() {
                 />
               ))}
             </div>
-          </div>
+          </>
         )}
+
       </main>
     </div>
   );

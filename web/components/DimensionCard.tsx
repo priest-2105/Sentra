@@ -5,25 +5,21 @@ interface DimensionCardProps {
 }
 
 function getBarColor(pct: number): string {
-  if (pct >= 0.75) return "#16A34A";
+  if (pct >= 0.75) return "#059669";
   if (pct >= 0.5) return "#D97706";
   return "#DC2626";
 }
 
-export default function DimensionCard({
-  label,
-  score,
-  maxScore,
-}: DimensionCardProps) {
+export default function DimensionCard({ label, score, maxScore }: DimensionCardProps) {
   const pct = Math.max(0, Math.min(1, score / maxScore));
   const barColor = getBarColor(pct);
 
   return (
     <div
       style={{
-        backgroundColor: "#1E293B",
-        border: "1px solid #334155",
-        borderRadius: "6px",
+        backgroundColor: "#FFFFFF",
+        border: "1px solid #E5E7EB",
+        borderRadius: "3px",
         padding: "16px",
       }}
     >
@@ -31,46 +27,39 @@ export default function DimensionCard({
         style={{
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "10px",
+          alignItems: "baseline",
+          marginBottom: "12px",
         }}
       >
         <span
           style={{
-            fontFamily: "var(--font-inter), Inter, sans-serif",
-            fontSize: "13px",
-            color: "#94A3B8",
+            fontFamily: "var(--font-sans), 'IBM Plex Sans', sans-serif",
+            fontSize: "12px",
             fontWeight: 500,
+            color: "#1F2933",
           }}
         >
           {label}
         </span>
         <span
           style={{
-            fontFamily: "var(--font-jetbrains), 'JetBrains Mono', monospace",
-            fontSize: "15px",
+            fontFamily: "var(--font-mono), 'JetBrains Mono', monospace",
+            fontSize: "13px",
             fontWeight: 700,
             color: barColor,
           }}
         >
           {score}
-          <span
-            style={{
-              fontSize: "11px",
-              color: "#6B7280",
-              fontWeight: 400,
-            }}
-          >
+          <span style={{ fontSize: "10px", fontWeight: 400, color: "#D1D5DB" }}>
             /{maxScore}
           </span>
         </span>
       </div>
-      {/* Progress bar */}
       <div
         style={{
-          height: "4px",
-          backgroundColor: "#334155",
-          borderRadius: "2px",
+          height: "2px",
+          backgroundColor: "#F3F4F6",
+          borderRadius: "1px",
           overflow: "hidden",
         }}
       >
@@ -79,7 +68,6 @@ export default function DimensionCard({
             height: "100%",
             width: `${pct * 100}%`,
             backgroundColor: barColor,
-            borderRadius: "2px",
             transition: "width 0.5s ease",
           }}
         />
