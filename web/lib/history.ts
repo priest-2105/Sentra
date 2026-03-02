@@ -25,6 +25,10 @@ export function getHistory(): HistoryEntry[] {
   }
 }
 
+export function deleteHistoryEntry(id: string): void {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(getHistory().filter((e) => e.id !== id)));
+}
+
 export function clearHistory(): void {
   localStorage.removeItem(STORAGE_KEY);
 }

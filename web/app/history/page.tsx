@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Header from "@/components/Header";
-import { getHistory, clearHistory, type HistoryEntry } from "@/lib/history";
+import { getHistory, clearHistory, deleteHistoryEntry, type HistoryEntry } from "@/lib/history";
 
 const RECOMMENDATION_CONFIG = {
   Ready: { color: "#059669", bg: "#F0FDF4", border: "#A7F3D0", label: "READY" },
@@ -35,6 +35,11 @@ export default function HistoryPage() {
   function handleClear() {
     clearHistory();
     setEntries([]);
+  }
+
+  function handleDelete(id: string) {
+    deleteHistoryEntry(id);
+    setEntries((prev) => prev.filter((e) => e.id !== id));
   }
 
   return (
@@ -138,14 +143,14 @@ export default function HistoryPage() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "1fr 80px 140px 110px 80px",
+                gridTemplateColumns: "1fr 80px 140px 110px 80px 28px",
                 gap: "16px",
                 padding: "0 0 10px",
                 borderBottom: "1px solid #E5E7EB",
                 marginBottom: "4px",
               }}
             >
-              {["Repository", "Score", "Verdict", "Date", ""].map((col) => (
+              {["Repository", "Score", "Verdict", "Date", "", ""].map((col) => (
                 <span
                   key={col}
                   style={{
@@ -169,7 +174,7 @@ export default function HistoryPage() {
                   key={entry.id}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "1fr 80px 140px 110px 80px",
+                    gridTemplateColumns: "1fr 80px 140px 110px 80px 28px",
                     gap: "16px",
                     alignItems: "center",
                     padding: "16px 0",
@@ -247,6 +252,27 @@ export default function HistoryPage() {
                   >
                     View →
                   </Link>
+
+                  {/* Delete */}
+                  <button
+                    onClick={() => handleDelete(entry.id)}
+                    title="Delete entry"
+                    style={{
+                      background: "none",
+                      border: "none",
+                      padding: "0",
+                      cursor: "pointer",
+                      color: "#D1D5DB",
+                      fontSize: "14px",
+                      lineHeight: 1,
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#DC2626")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "#D1D5DB")}
+                  >
+                    ×
+                  </button>
                 </div>
               );
             })}
