@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Serif, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
+import Footer from "@/components/Footer";
 import "./globals.css";
 
 const ibmPlexSerif = IBM_Plex_Serif({
@@ -41,6 +42,7 @@ export default function RootLayout({
         style={{ fontFamily: "var(--font-sans), 'IBM Plex Sans', sans-serif" }}
       >
         {children}
+        <Footer />
       </body>
     </html>
   );

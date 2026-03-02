@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import logo from "@/app/Sentra-logo.png";
@@ -16,37 +18,52 @@ export default function Header() {
           justifyContent: "space-between",
         }}
       >
+        {/* Logo + wordmark */}
         <Link
           href="/"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            textDecoration: "none",
-          }}
+          style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none" }}
         >
-          <Image
-            src={logo}
-            alt="Sentra"
-            height={28}
-            width={28}
-            style={{ display: "block" }}
-          />
-       
+          <Image src={logo} alt="Sentra" height={28} width={28} style={{ display: "block" }} />
+          <span
+            style={{
+              fontFamily: "var(--font-serif), 'IBM Plex Serif', serif",
+              fontWeight: 700,
+              fontSize: "17px",
+              color: "#0B1F2A",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            {/* Sentra */}
+          </span>
         </Link>
 
-        <span
-          style={{
-            fontFamily: "var(--font-sans), 'IBM Plex Sans', sans-serif",
-            fontSize: "11px",
-            fontWeight: 400,
-            color: "#6B7280",
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-          }}
-        >
-          Production Intelligence
-        </span>
+        {/* Nav */}
+        <nav style={{ display: "flex", alignItems: "center", gap: "28px" }}>
+          <Link
+            href="/history"
+            style={{
+              fontFamily: "var(--font-sans), 'IBM Plex Sans', sans-serif",
+              fontSize: "13px",
+              fontWeight: 400,
+              color: "#6B7280",
+              textDecoration: "none",
+            }}
+          >
+            History
+          </Link>
+          <Link
+            href="/credits"
+            style={{
+              fontFamily: "var(--font-sans), 'IBM Plex Sans', sans-serif",
+              fontSize: "13px",
+              fontWeight: 400,
+              color: "#6B7280",
+              textDecoration: "none",
+            }}
+          >
+            Credits
+          </Link>
+        </nav>
       </div>
     </header>
   );

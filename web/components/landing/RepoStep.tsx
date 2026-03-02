@@ -107,6 +107,21 @@ export default function RepoStep({ value, onChange, onContinue }: RepoStepProps)
       >
         Continue →
       </button>
+
+      <p
+        style={{
+          fontFamily: "var(--font-sans), 'IBM Plex Sans', sans-serif",
+          fontSize: "11px",
+          fontWeight: 300,
+          color: "#9CA3AF",
+          textAlign: "center",
+          marginTop: "16px",
+          lineHeight: 1.5,
+        }}
+      >
+        Results are AI-generated and may not be fully accurate. Treat this as
+        an informational guide, not a definitive audit.
+      </p>
     </form>
   );
 }
