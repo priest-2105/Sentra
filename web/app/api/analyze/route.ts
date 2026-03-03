@@ -2,7 +2,36 @@ import { NextRequest, NextResponse } from "next/server";
 
 const ENGINE_URL = process.env.ENGINE_URL || "http://localhost:8000";
 
+// In-memory IP rate limiter: 5 scans per 24 hours per IP
+const ipTimestamps = new Map<string, number[]>();
+const RATE_MAX = 5;
+const RATE_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const cutoff = now - RATE_WINDOW_MS;
+  const prev = (ipTimestamps.get(ip) ?? []).filter((t) => t > cutoff);
+  if (prev.length >= RATE_MAX) return false;
+  ipTimestamps.set(ip, [...prev, now]);
+  return true;
+}
+
+function getClientIp(request: NextRequest): string {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    request.headers.get("x-real-ip") ??
+    "0.0.0.0"
+  );
+}
+
 export async function POST(request: NextRequest) {
+  const ip = getClientIp(request);
+  if (!checkRateLimit(ip)) {
+    return NextResponse.json(
+      { error: `Rate limit exceeded — maximum ${RATE_MAX} scans per 24 hours per IP address.` },
+      { status: 429 }
+    );
+  }
   try {
     const body = await request.json();
 

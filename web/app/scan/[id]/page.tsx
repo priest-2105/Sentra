@@ -18,6 +18,86 @@ const RECOMMENDATION_CONFIG = {
   "Not Ready": { color: "#DC2626", bg: "#FEF2F2", border: "#FECACA", label: "NOT PRODUCTION READY" },
 };
 
+const GRID_CELL = 48;
+const TRACERS: { axis: "h" | "v"; idx: number; delay: number; dur: number }[] = [
+  { axis: "h", idx: 3,  delay: 0,   dur: 4.5 },
+  { axis: "h", idx: 8,  delay: 1.8, dur: 3.8 },
+  { axis: "h", idx: 13, delay: 3.6, dur: 5.0 },
+  { axis: "h", idx: 17, delay: 0.9, dur: 4.2 },
+  { axis: "h", idx: 5,  delay: 5.3, dur: 4.1 },
+  { axis: "v", idx: 5,  delay: 0.5, dur: 4.0 },
+  { axis: "v", idx: 11, delay: 2.3, dur: 3.6 },
+  { axis: "v", idx: 18, delay: 1.3, dur: 4.8 },
+  { axis: "v", idx: 24, delay: 3.9, dur: 3.9 },
+  { axis: "v", idx: 14, delay: 4.5, dur: 3.7 },
+];
+
+function GridTracer() {
+  return (
+    <>
+      <style>{`
+        @keyframes sentra-trace-h {
+          0%   { transform: scaleX(0); opacity: 0; }
+          10%  { opacity: 1; }
+          65%  { transform: scaleX(1); opacity: 0.4; }
+          100% { transform: scaleX(1); opacity: 0; }
+        }
+        @keyframes sentra-trace-v {
+          0%   { transform: scaleY(0); opacity: 0; }
+          10%  { opacity: 1; }
+          65%  { transform: scaleY(1); opacity: 0.4; }
+          100% { transform: scaleY(1); opacity: 0; }
+        }
+      `}</style>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 0,
+          overflow: "hidden",
+          backgroundImage: `
+            linear-gradient(to right, rgba(2,116,182,0.07) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(2,116,182,0.07) 1px, transparent 1px)
+          `,
+          backgroundSize: `${GRID_CELL}px ${GRID_CELL}px`,
+        }}
+      >
+        {TRACERS.map((t, i) =>
+          t.axis === "h" ? (
+            <div
+              key={i}
+              style={{
+                position: "absolute",
+                top: `${t.idx * GRID_CELL}px`,
+                left: 0,
+                right: 0,
+                height: "1px",
+                backgroundColor: "rgba(2,116,182,0.32)",
+                transformOrigin: "left center",
+                animation: `sentra-trace-h ${t.dur}s ${t.delay}s ease-in-out infinite`,
+              }}
+            />
+          ) : (
+            <div
+              key={i}
+              style={{
+                position: "absolute",
+                left: `${t.idx * GRID_CELL}px`,
+                top: 0,
+                bottom: 0,
+                width: "1px",
+                backgroundColor: "rgba(2,116,182,0.32)",
+                transformOrigin: "top center",
+                animation: `sentra-trace-v ${t.dur}s ${t.delay}s ease-in-out infinite`,
+              }}
+            />
+          )
+        )}
+      </div>
+    </>
+  );
+}
+
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <p
@@ -121,7 +201,9 @@ export default function ScanPage() {
   // Loading / pending state
   if (!result || result.status === "pending" || result.status === "running") {
     return (
-      <div style={{ minHeight: "100vh", backgroundColor: "#F8FAFC" }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "#F8FAFC", position: "relative" }}>
+        <GridTracer />
+        <div style={{ position: "relative", zIndex: 1 }}>
         <Header />
         <div
           style={{
@@ -180,6 +262,7 @@ export default function ScanPage() {
           >
             Cloning repository, running static analysis, generating AI insights — typically 15–30 seconds.
           </p>
+        </div>
         </div>
       </div>
     );
